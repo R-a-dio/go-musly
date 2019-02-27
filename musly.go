@@ -292,6 +292,7 @@ func (b *Box) SetMusicStyle(ids []TrackID) error {
 	if err != nil {
 		return err
 	}
+	defer b.freeTracks(tracks)
 	usableTracks := tracks
 
 	// limit the amount of tracks if we got given more
