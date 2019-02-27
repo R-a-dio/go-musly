@@ -293,38 +293,23 @@ func (b *Box) SetMusicStyle(ids []TrackID) error {
 		return err
 	}
 	defer b.freeTracks(tracks)
-	usableTracks := tracks
 
 	// limit the amount of tracks if we got given more
 	if len(tracks) > 1000 {
-		var amount int
-		if len(tracks) < 1500 {
-			// lower our amount by about 10% if we're only
-			// slightly above the 1000 count
-			amount = len(tracks) - len(tracks)/10
-		} else {
-			amount = 1000
-		}
-		var index = make(map[int]struct{}, amount)
-
 		rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-		for len(index) <= amount {
-			i := rnd.Intn(len(tracks))
-			index[i] = struct{}{}
-		}
+		rnd.Shuffle(len(tracks), func(i, j int) {
+			tracks[i], tracks[j] = tracks[j], tracks[i]
+		})
 
-		usableTracks = make([]track, 0, amount)
-		for k := range index {
-			usableTracks = append(usableTracks, tracks[k])
-		}
+		tracks = tracks[:1000]
 	}
 
 	b.jukeboxMu.Lock()
 	ret := C.musly_jukebox_setmusicstyle(
 		b.jukebox,
-		(**C.musly_track)(&usableTracks[0]),
-		C.int(len(usableTracks)),
+		(**C.musly_track)(&tracks[0]),
+		C.int(len(tracks)),
 	)
 	b.jukeboxMu.Unlock()
 	if ret < 0 {
