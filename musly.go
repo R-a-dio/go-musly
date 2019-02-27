@@ -219,14 +219,15 @@ func newJukebox(method, decoder string) (*jukebox, error) {
 
 	// create C strings to pass to musly, but use nil when empty strings
 	// because those indicate default values for musly
-	cmethod := C.CString(method)
-	if method == "" {
-		cmethod = nil
+	var cmethod *C.char
+	if method != "" {
+		cmethod = C.CString(method)
 	}
 	defer C.free((unsafe.Pointer)(cmethod))
-	cdecoder := C.CString(decoder)
-	if decoder == "" {
-		cdecoder = nil
+
+	var cdecoder *C.char
+	if decoder != "" {
+		cdecoder = C.CString(decoder)
 	}
 	defer C.free((unsafe.Pointer)(cdecoder))
 
