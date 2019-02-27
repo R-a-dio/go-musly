@@ -129,7 +129,7 @@ func openBox(db *bolt.DB, path string) (*Box, error) {
 		// trigger our once, since we've already set our music style in a previous
 		// use of the jukebox
 		box.musicStyleSet.Set()
-		box.musicStyleOnce.Do(func() error { return nil })
+		box.musicStyleOnce.Done()
 	}
 
 	return box, box.loadJukebox()
@@ -238,6 +238,12 @@ func (o *errorOnce) Do(f func() error) error {
 	}
 
 	return nil
+}
+
+// Done marks the once as done. Note that this does effectively nothing
+// if a call to Do is already in progress.
+func (o *errorOnce) Done() {
+	atomic.StoreUint32(&o.done, 1)
 }
 
 type atomicBool int32

@@ -353,6 +353,9 @@ func (b *Box) SetMusicStyle(ids []TrackID) error {
 
 	b.modified.Set()
 	b.musicStyleSet.Set()
+	// tell the once we're done, this is for when we're directly called by the user
+	// rather than through a call from Similarity
+	b.musicStyleOnce.Done()
 	return nil
 }
 
